@@ -36,24 +36,8 @@ async function validateUser(req, res, next) {
     // next({
     //   status: 400,
     //   message: 'missing required name'})
-  } else {
-    const users = await User.get()
-    if (!users) {
-       res.status(500).json({message: 'error getting users'})
-    } else {
-      //checks for unique name
-      const unique = users.filter( user => user.name == req.body.name)
-      if (unique.length==0 ){
-        next()
-      } else{
-        res.status(409).json({message: 'unique username conflict'})
-        // next({
-        //   status: 409,
-        //   message: 'unique username conflict'
-        // })
-      }
-    }
-  }
+  } 
+  next()
 }
 
 function validatePost(req, res, next) {
@@ -69,4 +53,5 @@ module.exports = {
   logger,
   validateUserId,
   validateUser,
+  validatePost
 }
