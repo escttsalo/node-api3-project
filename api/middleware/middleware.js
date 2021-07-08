@@ -1,4 +1,5 @@
 const User = require('../users/users-model')
+const Post = require('../posts/posts-model')
 
 function logger(req, res, next) {
   console.log(`
@@ -12,32 +13,60 @@ function logger(req, res, next) {
  async function validateUserId(req, res, next) {
    try{
     const { id } = req.params
-    console.log(`the id is ${id}`)
+    // console.log(`the id is ${id}`)
     const user = await User.getById(id)
     if (user) {
       req.user = user
       next()
     } else {
-      next({ 
-        status: 404,
-        message: 'not found',
-      })
+        res.status(404).json({message: 'not found'})
+      // next({ 
+      //   status: 404,
+      //   message: 'not found',
+      // })
     }
    } catch (err) {
     next(err)
    }
 }
 
-function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+async function validateUser(req, res, next) {
+  if (!req.body.name){
+      res.status(400).json({message: 'missing required name'})
+    // next({
+    //   status: 400,
+    //   message: 'missing required name'})
+  } else {
+    const users = await User.get()
+    if (!users) {
+       res.status(500).json({message: 'error getting users'})
+    } else {
+      //checks for unique name
+      const unique = users.filter( user => user.name == req.body.name)
+      if (unique.length==0 ){
+        next()
+      } else{
+        res.status(409).json({message: 'unique username conflict'})
+        // next({
+        //   status: 409,
+        //   message: 'unique username conflict'
+        // })
+      }
+    }
+  }
 }
 
 function validatePost(req, res, next) {
-  // DO YOUR MAGIC
+  if (!req.body.text){
+    res.status(400).json({message: 'missing required text field'})
+  } else {
+    next()
+  }
 }
 
 // do not forget to expose these functions to other modules
 module.exports = {
   logger,
-  validateUserId
+  validateUserId,
+  validateUser,
 }
