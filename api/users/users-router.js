@@ -54,7 +54,10 @@ router.delete('/:id', validateUserId, async (req, res,next) => {
   try {
     const user = await User.getById(req.params.id)
     if (!user){
-      res.status(404).json({ message: 'not found'})
+      next({
+        status: 404,
+        message: 'not found'
+      })
     } else {
       await User.remove(req.params.id)
       res.status(200).json(user)
